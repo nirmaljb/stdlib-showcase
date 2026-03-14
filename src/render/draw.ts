@@ -43,12 +43,12 @@ const drawAxes = (
   yLabel: string
 ): PlotBox => {
   context.clearRect(0, 0, width, height);
-  context.fillStyle = '#000';
+  context.fillStyle = '#fff';
   context.fillRect(0, 0, width, height);
 
   const box = getPlotBox(width, height);
 
-  context.strokeStyle = '#333';
+  context.strokeStyle = '#ccc';
   context.lineWidth = 1;
   context.beginPath();
   context.moveTo(box.xStart, box.yBottom);
@@ -95,7 +95,7 @@ export const drawBifurcation = (
     return;
   }
 
-  context.fillStyle = '#fff';
+  context.fillStyle = '#111';
 
   for (let i = 0; i < points.length; i += 1) {
     const point = points[i];
@@ -107,7 +107,7 @@ export const drawBifurcation = (
   const clampedSelectedR = clamp(selectedR, rMin, rMax);
   const markerX = box.xStart + ((clampedSelectedR - rMin) / rSpan) * plotWidth;
 
-  context.strokeStyle = '#fff';
+  context.strokeStyle = '#cc2222';
   context.lineWidth = 1;
   context.setLineDash([4, 3]);
   context.beginPath();
@@ -116,7 +116,7 @@ export const drawBifurcation = (
   context.stroke();
   context.setLineDash([]);
 
-  context.fillStyle = '#fff';
+  context.fillStyle = '#111';
   context.fillText(`r = ${clampedSelectedR.toFixed(3)}`, box.xStart + 6, box.yTop + 14);
 };
 
@@ -128,7 +128,7 @@ export const drawOrbit = (
   const box = drawAxes(context, width, height, 't', 'x_t');
 
   if (points.length === 0) {
-    context.fillStyle = '#666';
+    context.fillStyle = '#999';
     context.fillText('No orbit data available.', box.xStart + 12, box.yTop + 20);
     return;
   }
@@ -137,7 +137,7 @@ export const drawOrbit = (
   const plotHeight = box.yBottom - box.yTop;
   const tMax = Math.max(points.length - 1, 1);
 
-  context.strokeStyle = '#fff';
+  context.strokeStyle = '#111';
   context.lineWidth = 1.2;
   context.beginPath();
 
@@ -155,7 +155,7 @@ export const drawOrbit = (
 
   context.stroke();
 
-  context.fillStyle = '#888';
+  context.fillStyle = '#666';
   for (let i = 0; i < points.length; i += 1) {
     const point = points[i];
     const x = box.xStart + (point.t / tMax) * plotWidth;

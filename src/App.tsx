@@ -134,6 +134,26 @@ export default function App({ engine: externalEngine }: AppProps): JSX.Element {
         </div>
       </header>
 
+      <Controls
+        busy={isComputing}
+        orbitR={request.orbitR}
+        x0={request.x0}
+        precisionIndex={precisionIndex}
+        precisionLabels={PRECISION_PRESETS.map((preset) => preset.label)}
+        numR={request.numR}
+        onOrbitRChange={(value) => {
+          setOrbitR(clamp(value, ORBIT_R_MIN, ORBIT_R_MAX));
+        }}
+        onX0Change={(value) => {
+          setX0(clamp(value, X0_MIN, X0_MAX));
+        }}
+        onPrecisionChange={(value) => {
+          const clamped = clamp(value, 0, PRECISION_PRESETS.length - 1);
+          setPrecisionIndex(Math.round(clamped));
+        }}
+        onReset={handleReset}
+      />
+
       <div className="main-layout">
         <div className="left-column">
           <section className="plot-frame orbit-frame">
@@ -153,26 +173,6 @@ export default function App({ engine: externalEngine }: AppProps): JSX.Element {
               }}
             />
           </section>
-
-          <Controls
-            busy={isComputing}
-            orbitR={request.orbitR}
-            x0={request.x0}
-            precisionIndex={precisionIndex}
-            precisionLabels={PRECISION_PRESETS.map((preset) => preset.label)}
-            numR={request.numR}
-            onOrbitRChange={(value) => {
-              setOrbitR(clamp(value, ORBIT_R_MIN, ORBIT_R_MAX));
-            }}
-            onX0Change={(value) => {
-              setX0(clamp(value, X0_MIN, X0_MAX));
-            }}
-            onPrecisionChange={(value) => {
-              const clamped = clamp(value, 0, PRECISION_PRESETS.length - 1);
-              setPrecisionIndex(Math.round(clamped));
-            }}
-            onReset={handleReset}
-          />
         </div>
 
         <aside className="right-column">

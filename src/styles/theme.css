@@ -1,11 +1,11 @@
 :root {
-  color-scheme: dark;
-  --bg: #000;
-  --surface: #0d0d0d;
-  --text: #fff;
+  color-scheme: light;
+  --bg: #fff;
+  --surface: #f7f7f7;
+  --text: #111;
   --muted: #666;
-  --border: #222;
-  --error: #ff4444;
+  --border: #ddd;
+  --error: #cc2222;
 }
 
 * {
@@ -30,11 +30,12 @@ body {
 /* ── Shell ───────────────────────────────────────────────── */
 
 .app-shell {
-  min-height: 100vh;
+  height: 100vh;
   padding: 0.75rem;
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+  overflow: hidden;
 }
 
 /* ── Header ──────────────────────────────────────────────── */
@@ -56,17 +57,66 @@ body {
   color: var(--muted);
 }
 
+/* ── Controls strip (horizontal, always visible) ─────────── */
+
+.controls-strip {
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.5rem 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  background: var(--surface);
+}
+
+.control-group {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.control-group label {
+  font-size: 0.82rem;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.control-group .slider {
+  width: 120px;
+  accent-color: #111;
+}
+
+.control-group .control-value {
+  font-size: 0.82rem;
+  font-variant-numeric: tabular-nums;
+  min-width: 3.2em;
+  text-align: right;
+}
+
+.controls-meta {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+
 /* ── Two-column layout ───────────────────────────────────── */
 
 .main-layout {
   display: flex;
   gap: 0.75rem;
-  align-items: flex-start;
+  flex: 1;
+  min-height: 0;
 }
 
 .left-column {
   flex: 1;
   min-width: 0;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   gap: 0.6rem;
@@ -75,8 +125,6 @@ body {
 .right-column {
   width: 220px;
   flex-shrink: 0;
-  position: sticky;
-  top: 0.75rem;
   align-self: flex-start;
 }
 
@@ -89,14 +137,15 @@ body {
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
+  min-height: 0;
 }
 
 .orbit-frame {
-  height: 300px;
+  flex: 35;
 }
 
 .bifurcation-frame {
-  height: 500px;
+  flex: 65;
 }
 
 .plot-title {
@@ -117,58 +166,6 @@ body {
   display: block;
   width: 100%;
   height: 100%;
-}
-
-/* ── Controls (inline) ───────────────────────────────────── */
-
-.controls-section {
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  padding: 0.8rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
-}
-
-.controls-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.controls-header h2 {
-  margin: 0;
-  font-size: 0.92rem;
-  font-weight: 600;
-}
-
-.control-label {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  font-size: 0.86rem;
-  color: var(--muted);
-}
-
-.slider {
-  width: 100%;
-  accent-color: #fff;
-  margin-top: -0.25rem;
-}
-
-.controls-footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
-  padding-top: 0.2rem;
-}
-
-.meta-row {
-  display: flex;
-  gap: 0.5rem;
-  font-size: 0.82rem;
-  color: var(--muted);
 }
 
 /* ── Stats panel (right sidebar) ─────────────────────────── */
@@ -229,7 +226,7 @@ body {
 }
 
 .button:hover {
-  border-color: #555;
+  border-color: #999;
 }
 
 .status {
@@ -240,8 +237,8 @@ body {
 .error-banner {
   margin: 0.55rem 0 0;
   border-left: 2px solid var(--error);
-  background: rgba(255, 68, 68, 0.08);
-  color: #ffaaaa;
+  background: rgba(204, 34, 34, 0.06);
+  color: #991111;
   padding: 0.5rem;
   font-size: 0.8rem;
 }

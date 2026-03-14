@@ -24,74 +24,64 @@ export default function Controls({
   onReset
 }: ControlsProps): JSX.Element {
   return (
-    <section className="controls-section">
-      <div className="controls-header">
-        <h2>Controls</h2>
-        <span className="status" aria-live="polite">
-          {busy ? 'Computing...' : 'Idle'}
-        </span>
+    <div className="controls-strip">
+      <div className="control-group">
+        <label htmlFor="orbit-r-slider">r</label>
+        <input
+          id="orbit-r-slider"
+          className="slider"
+          type="range"
+          min={0}
+          max={4}
+          step={0.001}
+          value={orbitR}
+          onChange={(event) => {
+            onOrbitRChange(Number(event.currentTarget.value));
+          }}
+        />
+        <span className="control-value">{orbitR.toFixed(3)}</span>
       </div>
 
-      <label htmlFor="orbit-r-slider" className="control-label">
-        Orbit r
-        <span>{orbitR.toFixed(3)}</span>
-      </label>
-      <input
-        id="orbit-r-slider"
-        className="slider"
-        type="range"
-        min={0}
-        max={4}
-        step={0.001}
-        value={orbitR}
-        onChange={(event) => {
-          onOrbitRChange(Number(event.currentTarget.value));
-        }}
-      />
+      <div className="control-group">
+        <label htmlFor="x0-slider">x0</label>
+        <input
+          id="x0-slider"
+          className="slider"
+          type="range"
+          min={0}
+          max={1}
+          step={0.001}
+          value={x0}
+          onChange={(event) => {
+            onX0Change(Number(event.currentTarget.value));
+          }}
+        />
+        <span className="control-value">{x0.toFixed(3)}</span>
+      </div>
 
-      <label htmlFor="x0-slider" className="control-label">
-        Initial x0
-        <span>{x0.toFixed(3)}</span>
-      </label>
-      <input
-        id="x0-slider"
-        className="slider"
-        type="range"
-        min={0}
-        max={1}
-        step={0.001}
-        value={x0}
-        onChange={(event) => {
-          onX0Change(Number(event.currentTarget.value));
-        }}
-      />
+      <div className="control-group">
+        <label htmlFor="precision-slider">Precision</label>
+        <input
+          id="precision-slider"
+          className="slider"
+          type="range"
+          min={0}
+          max={precisionLabels.length - 1}
+          step={1}
+          value={precisionIndex}
+          onChange={(event) => {
+            onPrecisionChange(Number(event.currentTarget.value));
+          }}
+        />
+        <span className="control-value">{precisionLabels[precisionIndex]}</span>
+      </div>
 
-      <label htmlFor="precision-slider" className="control-label">
-        Precision
-        <span>{precisionLabels[precisionIndex]}</span>
-      </label>
-      <input
-        id="precision-slider"
-        className="slider"
-        type="range"
-        min={0}
-        max={precisionLabels.length - 1}
-        step={1}
-        value={precisionIndex}
-        onChange={(event) => {
-          onPrecisionChange(Number(event.currentTarget.value));
-        }}
-      />
-
-      <div className="controls-footer">
-        <div className="meta-row">
-          <span>numR samples</span>
-          <span>{numR.toLocaleString()}</span>
-        </div>
+      <div className="controls-meta">
+        <span>{busy ? 'Computing...' : `${numR.toLocaleString()} samples`}</span>
         <button type="button" className="button" onClick={onReset}>
           Reset
         </button>
       </div>
-    </section>
+    </div>
   );
 }
