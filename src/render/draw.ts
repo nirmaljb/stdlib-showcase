@@ -43,12 +43,12 @@ const drawAxes = (
   yLabel: string
 ): PlotBox => {
   context.clearRect(0, 0, width, height);
-  context.fillStyle = '#101013';
+  context.fillStyle = '#000';
   context.fillRect(0, 0, width, height);
 
   const box = getPlotBox(width, height);
 
-  context.strokeStyle = '#4f4f57';
+  context.strokeStyle = '#333';
   context.lineWidth = 1;
   context.beginPath();
   context.moveTo(box.xStart, box.yBottom);
@@ -57,7 +57,7 @@ const drawAxes = (
   context.lineTo(box.xStart, box.yTop);
   context.stroke();
 
-  context.fillStyle = '#a9abb4';
+  context.fillStyle = '#666';
   context.font = '12px "IBM Plex Sans", "Segoe UI", sans-serif';
   context.fillText(xLabel, box.xEnd - 8, box.yBottom + 20);
   context.fillText(yLabel, box.xStart - 16, box.yTop + 5);
@@ -95,7 +95,7 @@ export const drawBifurcation = (
     return;
   }
 
-  context.fillStyle = '#3da6ff';
+  context.fillStyle = '#fff';
 
   for (let i = 0; i < points.length; i += 1) {
     const point = points[i];
@@ -107,7 +107,7 @@ export const drawBifurcation = (
   const clampedSelectedR = clamp(selectedR, rMin, rMax);
   const markerX = box.xStart + ((clampedSelectedR - rMin) / rSpan) * plotWidth;
 
-  context.strokeStyle = '#f5f5f7';
+  context.strokeStyle = '#fff';
   context.lineWidth = 1;
   context.setLineDash([4, 3]);
   context.beginPath();
@@ -116,7 +116,7 @@ export const drawBifurcation = (
   context.stroke();
   context.setLineDash([]);
 
-  context.fillStyle = '#f5f5f7';
+  context.fillStyle = '#fff';
   context.fillText(`r = ${clampedSelectedR.toFixed(3)}`, box.xStart + 6, box.yTop + 14);
 };
 
@@ -128,7 +128,7 @@ export const drawOrbit = (
   const box = drawAxes(context, width, height, 't', 'x_t');
 
   if (points.length === 0) {
-    context.fillStyle = '#a9abb4';
+    context.fillStyle = '#666';
     context.fillText('No orbit data available.', box.xStart + 12, box.yTop + 20);
     return;
   }
@@ -137,7 +137,7 @@ export const drawOrbit = (
   const plotHeight = box.yBottom - box.yTop;
   const tMax = Math.max(points.length - 1, 1);
 
-  context.strokeStyle = '#3da6ff';
+  context.strokeStyle = '#fff';
   context.lineWidth = 1.2;
   context.beginPath();
 
@@ -155,7 +155,7 @@ export const drawOrbit = (
 
   context.stroke();
 
-  context.fillStyle = '#7fc4ff';
+  context.fillStyle = '#888';
   for (let i = 0; i < points.length; i += 1) {
     const point = points[i];
     const x = box.xStart + (point.t / tMax) * plotWidth;

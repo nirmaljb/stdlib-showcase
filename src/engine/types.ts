@@ -23,6 +23,7 @@ export interface OrbitPoint {
 export interface ComputeStats {
   mean: number;
   variance: number;
+  lyapunov: number;
 }
 
 export interface ComputeResult {

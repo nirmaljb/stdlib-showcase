@@ -25,13 +25,15 @@ Both are computed from the logistic map:
 - Debounced live recompute: `200ms`
 - Canvas 2D rendering for both plots
 - Modal controls (transparent overlay)
-- Stats panel uses stdlib mean + variance
+- Stats panel uses stdlib mean + variance + Lyapunov exponent
 
 ## stdlib usage
 
 - `@stdlib/array-linspace`
 - `@stdlib/stats-base-mean`
 - `@stdlib/stats-base-variance`
+- `@stdlib/math-base-special-ln`
+- `@stdlib/math-base-special-abs`
 
 Math implementation lives in:
 

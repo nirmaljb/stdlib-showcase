@@ -3,9 +3,26 @@ declare module '@stdlib/array-linspace' {
 }
 
 declare module '@stdlib/stats-base-mean' {
-  export default function mean(values: ArrayLike<number>): number;
+  export default function mean(
+    N: number,
+    x: ArrayLike<number>,
+    stride: number
+  ): number;
 }
 
 declare module '@stdlib/stats-base-variance' {
-  export default function variance(values: ArrayLike<number>): number;
+  export default function variance(
+    N: number,
+    correction: number,
+    x: ArrayLike<number>,
+    stride: number
+  ): number;
+}
+
+declare module '@stdlib/math-base-special-ln' {
+  export default function ln(value: number): number;
+}
+
+declare module '@stdlib/math-base-special-abs' {
+  export default function abs(value: number): number;
 }

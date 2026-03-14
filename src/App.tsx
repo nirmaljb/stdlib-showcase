@@ -65,7 +65,6 @@ export default function App({ engine: externalEngine }: AppProps): JSX.Element {
   const [precisionIndex, setPrecisionIndex] = useState<number>(
     DEFAULT_PRECISION_INDEX
   );
-  const [controlsOpen, setControlsOpen] = useState<boolean>(false);
 
   const [result, setResult] = useState<ComputeResult | null>(null);
   const [isComputing, setIsComputing] = useState<boolean>(false);
@@ -133,22 +132,35 @@ export default function App({ engine: externalEngine }: AppProps): JSX.Element {
             statistics.
           </p>
         </div>
+      </header>
 
-        <div className="toolbar-right">
+      <div className="main-layout">
+        <div className="left-column">
+          <section className="plot-frame orbit-frame">
+            <div className="plot-title">Orbit Plot (t, x_t)</div>
+            <OrbitCanvas points={result?.orbitPoints ?? []} />
+          </section>
+
+          <section className="plot-frame bifurcation-frame">
+            <div className="plot-title">Bifurcation Diagram (r, x)</div>
+            <BifurcationCanvas
+              points={result?.bifurcationPoints ?? []}
+              rMin={request.rMin}
+              rMax={request.rMax}
+              selectedR={request.orbitR}
+              onSelectR={(nextR) => {
+                setOrbitR(clamp(nextR, ORBIT_R_MIN, ORBIT_R_MAX));
+              }}
+            />
+          </section>
+
           <Controls
-            isOpen={controlsOpen}
             busy={isComputing}
             orbitR={request.orbitR}
             x0={request.x0}
             precisionIndex={precisionIndex}
             precisionLabels={PRECISION_PRESETS.map((preset) => preset.label)}
             numR={request.numR}
-            onOpen={() => {
-              setControlsOpen(true);
-            }}
-            onClose={() => {
-              setControlsOpen(false);
-            }}
             onOrbitRChange={(value) => {
               setOrbitR(clamp(value, ORBIT_R_MIN, ORBIT_R_MAX));
             }}
@@ -162,36 +174,18 @@ export default function App({ engine: externalEngine }: AppProps): JSX.Element {
             onReset={handleReset}
           />
         </div>
-      </header>
 
-      <StatsPanel
-        stats={result?.stats ?? null}
-        requestUsed={result?.requestUsed ?? null}
-        bifurcationPointCount={result?.bifurcationPoints.length ?? 0}
-        orbitPointCount={result?.orbitPoints.length ?? 0}
-        elapsedMs={result?.elapsedMs ?? null}
-        error={error}
-      />
-
-      <main className="plot-stack">
-        <section className="plot-frame bifurcation-frame">
-          <div className="plot-title">Bifurcation Diagram (r, x)</div>
-          <BifurcationCanvas
-            points={result?.bifurcationPoints ?? []}
-            rMin={request.rMin}
-            rMax={request.rMax}
-            selectedR={request.orbitR}
-            onSelectR={(nextR) => {
-              setOrbitR(clamp(nextR, ORBIT_R_MIN, ORBIT_R_MAX));
-            }}
+        <aside className="right-column">
+          <StatsPanel
+            stats={result?.stats ?? null}
+            requestUsed={result?.requestUsed ?? null}
+            bifurcationPointCount={result?.bifurcationPoints.length ?? 0}
+            orbitPointCount={result?.orbitPoints.length ?? 0}
+            elapsedMs={result?.elapsedMs ?? null}
+            error={error}
           />
-        </section>
-
-        <section className="plot-frame orbit-frame">
-          <div className="plot-title">Orbit Plot (t, x_t)</div>
-          <OrbitCanvas points={result?.orbitPoints ?? []} />
-        </section>
-      </main>
+        </aside>
+      </div>
     </div>
   );
 }

@@ -139,8 +139,12 @@ export const validateComputeResult = (
     validateOrbitPoint(point, index);
   });
 
-  if (!Number.isFinite(result.stats.mean) || !Number.isFinite(result.stats.variance)) {
-    throw new Error('stats must contain finite mean and variance values.');
+  if (
+    !Number.isFinite(result.stats.mean) ||
+    !Number.isFinite(result.stats.variance) ||
+    !Number.isFinite(result.stats.lyapunov)
+  ) {
+    throw new Error('stats must contain finite mean, variance, and lyapunov values.');
   }
 
   if (result.stats.variance < 0) {

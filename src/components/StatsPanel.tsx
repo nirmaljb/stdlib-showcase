@@ -17,6 +17,22 @@ const formatMetric = (value: number | null, digits = 6): string => {
   return value.toFixed(digits);
 };
 
+const classifyLyapunov = (lambda: number | null): string => {
+  if (lambda === null || !Number.isFinite(lambda)) {
+    return 'N/A';
+  }
+
+  if (lambda > 0.01) {
+    return 'Chaotic';
+  }
+
+  if (lambda < -0.01) {
+    return 'Stable';
+  }
+
+  return 'Boundary';
+};
+
 export default function StatsPanel({
   stats,
   requestUsed,
@@ -37,6 +53,14 @@ export default function StatsPanel({
         <div>
           <dt>Variance</dt>
           <dd>{formatMetric(stats?.variance ?? null)}</dd>
+        </div>
+        <div>
+          <dt>Lyapunov λ</dt>
+          <dd>{formatMetric(stats?.lyapunov ?? null)}</dd>
+        </div>
+        <div>
+          <dt>Regime</dt>
+          <dd>{classifyLyapunov(stats?.lyapunov ?? null)}</dd>
         </div>
         <div>
           <dt>Bifurcation points</dt>
