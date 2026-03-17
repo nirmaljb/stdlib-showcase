@@ -2,6 +2,8 @@
 
 Logistic map bifurcation diagram and orbit explorer.
 
+Engine code is in `src/engine/math-engine.ts`.
+
 ## The map
 
 ```
@@ -39,17 +41,8 @@ Other fixed values: 1200 r-samples, 100 orbit burn-in steps, 200 orbit length.
 All math runs through these:
 
 - `@stdlib/array-linspace` — uniform r grid
-- `@stdlib/stats-base-mean` — strided mean: `mean(N, x, stride)`
-- `@stdlib/stats-base-variance` — strided variance: `variance(N, correction, x, stride)`
-- `@stdlib/math-base-special-ln` — natural log (Lyapunov terms)
-- `@stdlib/math-base-special-abs` — absolute value (derivative magnitude)
+- `@stdlib/stats-base-mean` — strided mean
+- `@stdlib/stats-base-variance`
+- `@stdlib/math-base-special-ln` — natural log 
+- `@stdlib/math-base-special-abs` — absolute value 
 
-Engine code is in `src/engine/math-engine.ts`.
-
-## Run
-
-```
-npm install
-npm run dev
-npm run build
-```
