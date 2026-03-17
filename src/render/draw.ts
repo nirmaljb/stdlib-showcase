@@ -95,7 +95,7 @@ export const drawBifurcation = (
     return;
   }
 
-  context.fillStyle = '#111';
+  context.fillStyle = '#2563eb';
 
   for (let i = 0; i < points.length; i += 1) {
     const point = points[i];
@@ -137,7 +137,7 @@ export const drawOrbit = (
   const plotHeight = box.yBottom - box.yTop;
   const tMax = Math.max(points.length - 1, 1);
 
-  context.strokeStyle = '#111';
+  context.strokeStyle = '#2563eb';
   context.lineWidth = 1.2;
   context.beginPath();
 
@@ -155,7 +155,7 @@ export const drawOrbit = (
 
   context.stroke();
 
-  context.fillStyle = '#666';
+  context.fillStyle = '#60a5fa';
   for (let i = 0; i < points.length; i += 1) {
     const point = points[i];
     const x = box.xStart + (point.t / tMax) * plotWidth;

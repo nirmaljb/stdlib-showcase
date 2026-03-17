@@ -12,7 +12,7 @@ interface ViewportSize {
 }
 
 const MIN_WIDTH = 520;
-const MIN_HEIGHT = 220;
+const MIN_HEIGHT = 80;
 
 export default function OrbitCanvas({ points }: OrbitCanvasProps): JSX.Element {
   const containerRef = useRef<HTMLDivElement | null>(null);

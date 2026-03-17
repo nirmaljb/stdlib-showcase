@@ -16,7 +16,7 @@ interface ViewportSize {
 }
 
 const MIN_WIDTH = 520;
-const MIN_HEIGHT = 320;
+const MIN_HEIGHT = 80;
 
 export default function BifurcationCanvas({
   points,

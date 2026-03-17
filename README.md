@@ -1,54 +1,55 @@
-# From Order to Chaos: Logistic Map Explorer
+# from-order-to-chaos
 
-Desktop-first React + TypeScript app that visualizes:
+Logistic map bifurcation diagram and orbit explorer.
 
-- Bifurcation diagram (x-axis `r`, y-axis `x`)
-- Orbit time series (x-axis `t`, y-axis `x_t`)
+## The map
 
-Both are computed from the logistic map:
+```
+x_{n+1} = r * x_n * (1 - x_n)
+```
 
-`x_{t+1} = r * x_t * (1 - x_t)`
+- `x` lives in `[0, 1]`
+- `r` lives in `[0, 4]`
+- Bifurcation scan range: `r ∈ [2.5, 4.0]`
 
-## MVP choices implemented
+## Controls
 
-- Bifurcation range: `r in [2.5, 4.0]`
-- Orbit range clamp: `r_orbit in [0, 4]`
-- Initial condition clamp: `x0 in [0, 1]`
-- Precision presets:
-  - Low: `N=400, m=80`
-  - Medium: `N=1000, m=200`
-  - High: `N=2000, m=400`
-- `m < N` enforced
-- `numR = 1200`
-- Orbit burn-in: `100`
-- Orbit length: `T = 200`
-- Debounced live recompute: `200ms`
-- Canvas 2D rendering for both plots
-- Modal controls (transparent overlay)
-- Stats panel uses stdlib mean + variance + Lyapunov exponent
+| Parameter | Range | Default |
+|-----------|-------|---------|
+| r (orbit) | 0 – 4 | 3.7 |
+| x0 | 0 – 1 | 0.5 |
+| Precision | Low / Med / High | Med |
 
-## stdlib usage
+Precision presets set iterations (N) and tail samples (m):
+- Low: N=400, m=80
+- Medium: N=1000, m=200
+- High: N=2000, m=400
 
-- `@stdlib/array-linspace`
-- `@stdlib/stats-base-mean`
-- `@stdlib/stats-base-variance`
-- `@stdlib/math-base-special-ln`
-- `@stdlib/math-base-special-abs`
+Other fixed values: 1200 r-samples, 100 orbit burn-in steps, 200 orbit length.
 
-Math implementation lives in:
+## Metrics
 
-- `src/engine/math-engine.ts`
+- **Mean** — `μ = (1/N) Σ x_i`
+- **Variance** — `σ² = (1/(N-1)) Σ (x_i - μ)²`
+- **Lyapunov exponent** — `λ = (1/K) Σ ln|r(1 - 2x_n)|`
+  - `λ > 0` → chaotic, `λ < 0` → stable
 
-Look for `EDIT HERE` comments to customize behavior.
+## stdlib
 
-## Commands
+All math runs through these:
 
-```bash
+- `@stdlib/array-linspace` — uniform r grid
+- `@stdlib/stats-base-mean` — strided mean: `mean(N, x, stride)`
+- `@stdlib/stats-base-variance` — strided variance: `variance(N, correction, x, stride)`
+- `@stdlib/math-base-special-ln` — natural log (Lyapunov terms)
+- `@stdlib/math-base-special-abs` — absolute value (derivative magnitude)
+
+Engine code is in `src/engine/math-engine.ts`.
+
+## Run
+
+```
 npm install
 npm run dev
 npm run build
 ```
-
-## Notes
-
-- Full system runbook and error handling details are in `agent.md`.
