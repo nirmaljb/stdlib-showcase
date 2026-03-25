@@ -3,6 +3,9 @@ import abs from '@stdlib/math-base-special-abs';
 import ln from '@stdlib/math-base-special-ln';
 import mean from '@stdlib/stats-base-mean';
 import variance from '@stdlib/stats-base-variance';
+import isFinite from '@stdlib/assert-is-finite';
+import max from '@stdlib/math-base-special-max';
+import ceil from '@stdlib/math-base-special-ceil';
 
 import type {
   BifurcationEngine,
@@ -17,7 +20,7 @@ const LYAPUNOV_ZERO_GUARD = 1e-10;
 
 // clamp x to [0, 1]
 const clamp01 = (value: number): number => {
-  if (!Number.isFinite(value)) {
+  if (!isFinite(value)) {
     return 0;
   }
 
@@ -44,7 +47,7 @@ export class StdlibMathEngine implements BifurcationEngine {
     const steadyStateValues: number[] = [];
 
     const totalSteadyCount = request.numR * request.tailCount;
-    const statsStride = Math.max(1, Math.ceil(totalSteadyCount / MAX_STATS_POINTS));
+    const statsStride = max(1, ceil(totalSteadyCount / MAX_STATS_POINTS));
     let steadyValueIndex = 0;
 
     // bifurcation: iterate f for each r, keep last tailCount values
