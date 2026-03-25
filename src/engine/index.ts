@@ -7,6 +7,12 @@ import type {
   OrbitPoint
 } from './types';
 
+import isFinite from '@stdlib/assert-is-finite';
+import round from '@stdlib/math-base-special-round';
+import max from '@stdlib/math-base-special-max';
+import min from '@stdlib/math-base-special-min';
+import isInteger from '@stdlib/math-base-assert-is-integer';
+
 const clamp = (value: number, min: number, max: number): number => {
   if (value < min) {
     return min;
@@ -20,7 +26,7 @@ const clamp = (value: number, min: number, max: number): number => {
 };
 
 const finiteOrFallback = (value: number, fallback: number): number => {
-  if (!Number.isFinite(value)) {
+  if (!isFinite(value)) {
     return fallback;
   }
 
@@ -29,8 +35,8 @@ const finiteOrFallback = (value: number, fallback: number): number => {
 
 const sanitizeInteger = (value: number, min: number, fallback: number): number => {
   const finite = finiteOrFallback(value, fallback);
-  const rounded = Math.round(finite);
-  return Math.max(min, rounded);
+  const rounded = round(finite);
+  return max(min, rounded);
 };
 
 export const sanitizeComputeRequest = (
@@ -49,8 +55,8 @@ export const sanitizeComputeRequest = (
     4
   );
 
-  const rMin = Math.min(rMinRaw, rMaxRaw);
-  const rMax = Math.max(rMinRaw, rMaxRaw);
+  const rMin = min(rMinRaw, rMaxRaw);
+  const rMax = max(rMinRaw, rMaxRaw);
 
   const iterations = sanitizeInteger(
     request.iterations,
@@ -64,7 +70,7 @@ export const sanitizeComputeRequest = (
     defaults.tailCount
   );
 
-  const tailCount = Math.min(tailCountCandidate, iterations - 1);
+  const tailCount = min(tailCountCandidate, iterations - 1);
 
   return {
     rMin,
@@ -92,7 +98,7 @@ const validateBifurcationPoint = (
   request: ComputeRequest,
   index: number
 ): void => {
-  if (!Number.isFinite(point.r) || !Number.isFinite(point.x)) {
+  if (!isFinite(point.r) || !isFinite(point.x)) {
     throw new Error(`Bifurcation point ${index} has non-finite values.`);
   }
 
@@ -106,7 +112,7 @@ const validateBifurcationPoint = (
 };
 
 const validateOrbitPoint = (point: OrbitPoint, index: number): void => {
-  if (!Number.isFinite(point.t) || !Number.isFinite(point.x)) {
+  if (!isFinite(point.t) || !isFinite(point.x)) {
     throw new Error(`Orbit point ${index} has non-finite values.`);
   }
 
@@ -140,13 +146,13 @@ export const validateComputeResult = (
   });
 
   if (
-    !Number.isFinite(result.stats.mean) ||
-    !Number.isFinite(result.stats.variance) ||
-    !Number.isFinite(result.stats.lyapunov) ||
-    !Number.isFinite(result.stats.lyapunovVariance) ||
-    !Number.isFinite(result.stats.attractorMin) ||
-    !Number.isFinite(result.stats.attractorMax) ||
-    !Number.isFinite(result.stats.attractorRange)
+    !isFinite(result.stats.mean) ||
+    !isFinite(result.stats.variance) ||
+    !isFinite(result.stats.lyapunov) ||
+    !isFinite(result.stats.lyapunovVariance) ||
+    !isFinite(result.stats.attractorMin) ||
+    !isFinite(result.stats.attractorMax) ||
+    !isFinite(result.stats.attractorRange)
   ) {
     throw new Error('stats must contain finite values for all metrics.');
   }
@@ -175,14 +181,14 @@ export const validateComputeResult = (
   // fixedPoint and stabilityMargin can be null (for r <= 1)
   if (
     result.stats.fixedPoint !== null &&
-    !Number.isFinite(result.stats.fixedPoint)
+    !isFinite(result.stats.fixedPoint)
   ) {
     throw new Error('fixedPoint must be finite when defined.');
   }
 
   if (
     result.stats.stabilityMargin !== null &&
-    (!Number.isFinite(result.stats.stabilityMargin) ||
+    (!isFinite(result.stats.stabilityMargin) ||
       result.stats.stabilityMargin < 0)
   ) {
     throw new Error('stabilityMargin must be finite and non-negative when defined.');
@@ -191,7 +197,7 @@ export const validateComputeResult = (
   // autocorrelation can be null (insufficient data) or in [-1, 1]
   if (
     result.stats.autocorrelation !== null &&
-    !Number.isFinite(result.stats.autocorrelation)
+    !isFinite(result.stats.autocorrelation)
   ) {
     throw new Error('autocorrelation must be finite when defined.');
   }
@@ -199,9 +205,9 @@ export const validateComputeResult = (
   // detectedPeriod can be null (aperiodic) or a positive integer
   if (
     result.stats.detectedPeriod !== null &&
-    (!Number.isFinite(result.stats.detectedPeriod) ||
+    (!isFinite(result.stats.detectedPeriod) ||
       result.stats.detectedPeriod < 1 ||
-      !Number.isInteger(result.stats.detectedPeriod))
+      !isInteger(result.stats.detectedPeriod))
   ) {
     throw new Error('detectedPeriod must be a positive integer when defined.');
   }
@@ -209,12 +215,12 @@ export const validateComputeResult = (
   // entropy can be null (insufficient data) or non-negative
   if (
     result.stats.entropy !== null &&
-    (!Number.isFinite(result.stats.entropy) || result.stats.entropy < 0)
+    (!isFinite(result.stats.entropy) || result.stats.entropy < 0)
   ) {
     throw new Error('entropy must be finite and non-negative when defined.');
   }
 
-  if (!Number.isFinite(result.elapsedMs) || result.elapsedMs < 0) {
+  if (!isFinite(result.elapsedMs) || result.elapsedMs < 0) {
     throw new Error('elapsedMs must be finite and >= 0.');
   }
 };

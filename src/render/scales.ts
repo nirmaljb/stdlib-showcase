@@ -1,3 +1,5 @@
+import isFinite from "@stdlib/assert-is-finite";
+
 export interface LinearScaleConfig {
   domainMin: number;
   domainMax: number;
@@ -6,7 +8,7 @@ export interface LinearScaleConfig {
 }
 
 export const clamp = (value: number, min: number, max: number): number => {
-  if (!Number.isFinite(value)) {
+  if (!isFinite(value)) {
     return min;
   }
 

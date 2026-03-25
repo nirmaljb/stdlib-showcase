@@ -4,6 +4,7 @@ import ln from '@stdlib/math-base-special-ln';
 import min from '@stdlib/math-base-special-min';
 import max from '@stdlib/math-base-special-max';
 import mean from '@stdlib/stats-base-mean';
+import floor from '@stdlib/math-base-special-floor';
 import variance from '@stdlib/stats-base-variance';
 import isFinite from '@stdlib/assert-is-finite';
 import ceil from '@stdlib/math-base-special-ceil';
@@ -150,24 +151,20 @@ export class StdlibMathEngine implements BifurcationEngine {
         : 0;
     const lyapunovVariance = max(0, lyapunovVarianceRaw);
 
-    // Analytic fixed point: x* = 1 - 1/r for r > 1
-    // Stability margin: |f'(x*)| = |2 - r|
+    // x* = 1 - 1/r for r > 1
+    // |f'(x*)| = |2 - r|
     const fixedPoint = request.orbitR > 1 ? 1 - 1 / request.orbitR : null;
     const stabilityMargin = request.orbitR > 1 ? abs(2 - request.orbitR) : null;
 
-    // Lag-1 autocorrelation: ρ₁ = Σ(xₜ - μ)(xₜ₊₁ - μ) / ((T-1) · σ²)
-    // Computed from orbit points after burn-in
     let autocorrelation: number | null = null;
 
     if (orbitPoints.length > 1) {
-      // Compute orbit mean
       let orbitSum = 0;
       for (let i = 0; i < orbitPoints.length; i += 1) {
         orbitSum += orbitPoints[i].x;
       }
       const orbitMean = orbitSum / orbitPoints.length;
 
-      // Compute orbit variance
       let orbitVarianceSum = 0;
       for (let i = 0; i < orbitPoints.length; i += 1) {
         const diff = orbitPoints[i].x - orbitMean;
@@ -175,7 +172,6 @@ export class StdlibMathEngine implements BifurcationEngine {
       }
       const orbitVariance = orbitVarianceSum / orbitPoints.length;
 
-      // Compute lag-1 autocovariance
       if (orbitVariance > 1e-12) {
         let autocovSum = 0;
         for (let i = 0; i < orbitPoints.length - 1; i += 1) {
@@ -192,14 +188,12 @@ export class StdlibMathEngine implements BifurcationEngine {
     }
 
     // Period detection: check if orbit has period p ∈ {1, 2, 4, 8, 16}
-    // For each candidate, compute max |x_{t+p} - x_t| over tail
     const PERIOD_TOLERANCE = 1e-6;
     const candidatePeriods = [1, 2, 4, 8, 16];
     let detectedPeriod: number | null = null;
 
     if (orbitPoints.length >= 32) {
-      // Use last half of orbit for period detection (more settled)
-      const halfLen = Math.floor(orbitPoints.length / 2);
+      const halfLen = floor(orbitPoints.length / 2);
       const startIdx = orbitPoints.length - halfLen;
 
       for (const p of candidatePeriods) {
@@ -233,9 +227,9 @@ export class StdlibMathEngine implements BifurcationEngine {
 
       for (let i = 0; i < orbitPoints.length; i += 1) {
         // Map x in [0, 1] to bin index in [0, NUM_ENTROPY_BINS - 1]
-        const binIdx = Math.min(
+        const binIdx = min(
           NUM_ENTROPY_BINS - 1,
-          Math.floor(orbitPoints[i].x * NUM_ENTROPY_BINS)
+          floor(orbitPoints[i].x * NUM_ENTROPY_BINS)
         );
         binCounts[binIdx] += 1;
       }

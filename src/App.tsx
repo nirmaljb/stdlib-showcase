@@ -4,6 +4,8 @@ import Controls from './components/Controls';
 import OrbitCanvas from './components/OrbitCanvas';
 import StatsPanel from './components/StatsPanel';
 import { createEngine, runCompute } from './engine';
+import isFinite from '@stdlib/assert-is-finite';
+import round from '@stdlib/math-base-special-round';
 import type {
   BifurcationEngine,
   ComputeRequest,
@@ -31,7 +33,7 @@ interface AppProps {
 }
 
 const clamp = (value: number, min: number, max: number): number => {
-  if (!Number.isFinite(value)) {
+  if (!isFinite(value)) {
     return min;
   }
 
@@ -149,7 +151,7 @@ export default function App({ engine: externalEngine }: AppProps): JSX.Element {
         }}
         onPrecisionChange={(value) => {
           const clamped = clamp(value, 0, PRECISION_PRESETS.length - 1);
-          setPrecisionIndex(Math.round(clamped));
+          setPrecisionIndex(round(clamped));
         }}
         onReset={handleReset}
       />

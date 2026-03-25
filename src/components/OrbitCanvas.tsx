@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import type { OrbitPoint } from '../engine/types';
 import { drawOrbit } from '../render/draw';
+import max from '@stdlib/math-base-special-max';
+import floor from '@stdlib/math-base-special-floor';
 
 interface OrbitCanvasProps {
   points: OrbitPoint[];
@@ -28,8 +30,8 @@ export default function OrbitCanvas({ points }: OrbitCanvasProps): JSX.Element {
 
     const resize = (): void => {
       const rect = container.getBoundingClientRect();
-      const width = Math.max(MIN_WIDTH, Math.floor(rect.width));
-      const height = Math.max(MIN_HEIGHT, Math.floor(rect.height));
+      const width = max(MIN_WIDTH, floor(rect.width));
+      const height = max(MIN_HEIGHT, floor(rect.height));
       setSize({ width, height });
     };
 
@@ -60,8 +62,8 @@ export default function OrbitCanvas({ points }: OrbitCanvasProps): JSX.Element {
     }
 
     const dpr = window.devicePixelRatio || 1;
-    canvas.width = Math.floor(size.width * dpr);
-    canvas.height = Math.floor(size.height * dpr);
+    canvas.width = floor(size.width * dpr);
+    canvas.height = floor(size.height * dpr);
     canvas.style.width = `${size.width}px`;
     canvas.style.height = `${size.height}px`;
 

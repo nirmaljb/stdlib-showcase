@@ -1,6 +1,9 @@
 import type { BifurcationPoint, OrbitPoint } from '../engine/types';
 import { clamp } from './scales';
 
+import round from '@stdlib/math-base-special-round';
+import max from '@stdlib/math-base-special-max';
+
 interface PlotBox {
   xStart: number;
   xEnd: number;
@@ -101,7 +104,7 @@ export const drawBifurcation = (
     const point = points[i];
     const x = box.xStart + ((point.r - rMin) / rSpan) * plotWidth;
     const y = box.yBottom - clamp(point.x, 0, 1) * plotHeight;
-    context.fillRect(Math.round(x), Math.round(y), 1, 1);
+    context.fillRect(round(x), round(y), 1, 1);
   }
 
   const clampedSelectedR = clamp(selectedR, rMin, rMax);
@@ -135,7 +138,7 @@ export const drawOrbit = (
 
   const plotWidth = box.xEnd - box.xStart;
   const plotHeight = box.yBottom - box.yTop;
-  const tMax = Math.max(points.length - 1, 1);
+  const tMax = max(points.length - 1, 1);
 
   context.strokeStyle = '#000';
   context.lineWidth = 1.2;
@@ -160,6 +163,6 @@ export const drawOrbit = (
     const point = points[i];
     const x = box.xStart + (point.t / tMax) * plotWidth;
     const y = box.yBottom - clamp(point.x, 0, 1) * plotHeight;
-    context.fillRect(Math.round(x) - 1, Math.round(y) - 1, 2, 2);
+    context.fillRect(round(x) - 1, round(y) - 1, 2, 2);
   }
 };
