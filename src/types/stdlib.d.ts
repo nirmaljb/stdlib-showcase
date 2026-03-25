@@ -26,3 +26,19 @@ declare module '@stdlib/math-base-special-ln' {
 declare module '@stdlib/math-base-special-abs' {
   export default function abs(value: number): number;
 }
+
+declare module '@stdlib/math-base-special-min' {
+  export default function min(x: number, y: number): number;
+}
+
+declare module '@stdlib/math-base-special-max' {
+  export default function max(x: number, y: number): number;
+}
+
+declare module '@stdlib/assert-is-finite' {
+  export default function isFinite(value: number): boolean;
+}
+
+declare module '@stdlib/math-base-special-ceil' {
+  export default function ceil(x: number): number;
+}

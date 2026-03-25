@@ -1,10 +1,11 @@
 import linspace from '@stdlib/array-linspace';
 import abs from '@stdlib/math-base-special-abs';
 import ln from '@stdlib/math-base-special-ln';
+import min from '@stdlib/math-base-special-min';
+import max from '@stdlib/math-base-special-max';
 import mean from '@stdlib/stats-base-mean';
 import variance from '@stdlib/stats-base-variance';
 import isFinite from '@stdlib/assert-is-finite';
-import max from '@stdlib/math-base-special-max';
 import ceil from '@stdlib/math-base-special-ceil';
 
 import type {
@@ -77,6 +78,8 @@ export class StdlibMathEngine implements BifurcationEngine {
 
     // orbit: single r, burn in then record orbitLength steps
     let orbitX = request.x0;
+    let attractorMin = 1;
+    let attractorMax = 0;
 
     for (let i = 0; i < request.orbitBurnIn; i += 1) {
       orbitX = clamp01(logisticStep(request.orbitR, orbitX));
@@ -85,11 +88,19 @@ export class StdlibMathEngine implements BifurcationEngine {
     for (let t = 0; t < request.orbitLength; t += 1) {
       orbitX = clamp01(logisticStep(request.orbitR, orbitX));
       orbitPoints.push({ t, x: orbitX });
+
+      // track attractor bounds
+      attractorMin = min(attractorMin, orbitX);
+      attractorMax = max(attractorMax, orbitX);
     }
 
+    const attractorRange = attractorMax - attractorMin;
+
     // lyapunov: λ = (1/N) * Σ ln|f'(x_n)| where f'(x) = r * (1 - 2x)
+    // Also compute variance of log-stretch factors
     let lyapunovX = request.x0;
     let lyapunovSum = 0;
+    let lyapunovSumSq = 0;
     let lyapunovCount = 0;
 
     for (let i = 0; i < request.orbitBurnIn; i += 1) {
@@ -111,7 +122,9 @@ export class StdlibMathEngine implements BifurcationEngine {
         continue;
       }
 
-      lyapunovSum += ln(derivativeAbs);
+      const logStretch = ln(derivativeAbs);
+      lyapunovSum += logStretch;
+      lyapunovSumSq += logStretch * logStretch;
       lyapunovCount += 1;
     }
 
@@ -129,6 +142,118 @@ export class StdlibMathEngine implements BifurcationEngine {
     // λ = (1/K) * Σ ln|f'(x_n)|
     const lyapunovValue = lyapunovCount > 0 ? lyapunovSum / lyapunovCount : 0;
 
+    // Lyapunov variance: Var(ln|f'(x)|) = E[X²] - E[X]²
+    // Clamp to 0 to handle floating-point rounding when E[X²] ≈ E[X]²
+    const lyapunovVarianceRaw =
+      lyapunovCount > 1
+        ? lyapunovSumSq / lyapunovCount - lyapunovValue * lyapunovValue
+        : 0;
+    const lyapunovVariance = max(0, lyapunovVarianceRaw);
+
+    // Analytic fixed point: x* = 1 - 1/r for r > 1
+    // Stability margin: |f'(x*)| = |2 - r|
+    const fixedPoint = request.orbitR > 1 ? 1 - 1 / request.orbitR : null;
+    const stabilityMargin = request.orbitR > 1 ? abs(2 - request.orbitR) : null;
+
+    // Lag-1 autocorrelation: ρ₁ = Σ(xₜ - μ)(xₜ₊₁ - μ) / ((T-1) · σ²)
+    // Computed from orbit points after burn-in
+    let autocorrelation: number | null = null;
+
+    if (orbitPoints.length > 1) {
+      // Compute orbit mean
+      let orbitSum = 0;
+      for (let i = 0; i < orbitPoints.length; i += 1) {
+        orbitSum += orbitPoints[i].x;
+      }
+      const orbitMean = orbitSum / orbitPoints.length;
+
+      // Compute orbit variance
+      let orbitVarianceSum = 0;
+      for (let i = 0; i < orbitPoints.length; i += 1) {
+        const diff = orbitPoints[i].x - orbitMean;
+        orbitVarianceSum += diff * diff;
+      }
+      const orbitVariance = orbitVarianceSum / orbitPoints.length;
+
+      // Compute lag-1 autocovariance
+      if (orbitVariance > 1e-12) {
+        let autocovSum = 0;
+        for (let i = 0; i < orbitPoints.length - 1; i += 1) {
+          const diffT = orbitPoints[i].x - orbitMean;
+          const diffT1 = orbitPoints[i + 1].x - orbitMean;
+          autocovSum += diffT * diffT1;
+        }
+        const autocovariance = autocovSum / (orbitPoints.length - 1);
+        autocorrelation = autocovariance / orbitVariance;
+      } else {
+        // Near-zero variance means essentially constant orbit
+        autocorrelation = 1;
+      }
+    }
+
+    // Period detection: check if orbit has period p ∈ {1, 2, 4, 8, 16}
+    // For each candidate, compute max |x_{t+p} - x_t| over tail
+    const PERIOD_TOLERANCE = 1e-6;
+    const candidatePeriods = [1, 2, 4, 8, 16];
+    let detectedPeriod: number | null = null;
+
+    if (orbitPoints.length >= 32) {
+      // Use last half of orbit for period detection (more settled)
+      const halfLen = Math.floor(orbitPoints.length / 2);
+      const startIdx = orbitPoints.length - halfLen;
+
+      for (const p of candidatePeriods) {
+        if (startIdx + p >= orbitPoints.length) {
+          break;
+        }
+
+        let maxDiff = 0;
+        for (let i = startIdx; i < orbitPoints.length - p; i += 1) {
+          const diff = abs(orbitPoints[i].x - orbitPoints[i + p].x);
+          if (diff > maxDiff) {
+            maxDiff = diff;
+          }
+        }
+
+        if (maxDiff < PERIOD_TOLERANCE) {
+          detectedPeriod = p;
+          break;
+        }
+      }
+    }
+
+    // Shannon entropy: H = -Σ pᵢ · ln(pᵢ) over binned orbit values
+    // Uses 32 bins over [0, 1]
+    const NUM_ENTROPY_BINS = 32;
+    let entropy: number | null = null;
+
+    if (orbitPoints.length >= NUM_ENTROPY_BINS) {
+      // Build histogram
+      const binCounts = new Array<number>(NUM_ENTROPY_BINS).fill(0);
+
+      for (let i = 0; i < orbitPoints.length; i += 1) {
+        // Map x in [0, 1] to bin index in [0, NUM_ENTROPY_BINS - 1]
+        const binIdx = Math.min(
+          NUM_ENTROPY_BINS - 1,
+          Math.floor(orbitPoints[i].x * NUM_ENTROPY_BINS)
+        );
+        binCounts[binIdx] += 1;
+      }
+
+      // Compute entropy: H = -Σ pᵢ · ln(pᵢ), skip pᵢ = 0
+      let entropySum = 0;
+      const totalCount = orbitPoints.length;
+
+      for (let i = 0; i < NUM_ENTROPY_BINS; i += 1) {
+        if (binCounts[i] > 0) {
+          const p = binCounts[i] / totalCount;
+          entropySum -= p * ln(p);
+        }
+      }
+
+      entropy = entropySum;
+    }
+
     const elapsedMs = performance.now() - startedAt;
 
     return {
@@ -137,7 +262,16 @@ export class StdlibMathEngine implements BifurcationEngine {
       stats: {
         mean: meanValue,
         variance: varianceValue,
-        lyapunov: lyapunovValue
+        lyapunov: lyapunovValue,
+        lyapunovVariance,
+        attractorMin,
+        attractorMax,
+        attractorRange,
+        fixedPoint,
+        stabilityMargin,
+        autocorrelation,
+        detectedPeriod,
+        entropy
       },
       elapsedMs,
       requestUsed: request

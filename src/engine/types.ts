@@ -24,6 +24,15 @@ export interface ComputeStats {
   mean: number;
   variance: number;
   lyapunov: number;
+  lyapunovVariance: number;
+  attractorMin: number;
+  attractorMax: number;
+  attractorRange: number;
+  fixedPoint: number | null;
+  stabilityMargin: number | null;
+  autocorrelation: number | null;
+  detectedPeriod: number | null;
+  entropy: number | null;
 }
 
 export interface ComputeResult {

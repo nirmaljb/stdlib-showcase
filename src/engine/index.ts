@@ -142,13 +142,76 @@ export const validateComputeResult = (
   if (
     !Number.isFinite(result.stats.mean) ||
     !Number.isFinite(result.stats.variance) ||
-    !Number.isFinite(result.stats.lyapunov)
+    !Number.isFinite(result.stats.lyapunov) ||
+    !Number.isFinite(result.stats.lyapunovVariance) ||
+    !Number.isFinite(result.stats.attractorMin) ||
+    !Number.isFinite(result.stats.attractorMax) ||
+    !Number.isFinite(result.stats.attractorRange)
   ) {
-    throw new Error('stats must contain finite mean, variance, and lyapunov values.');
+    throw new Error('stats must contain finite values for all metrics.');
   }
 
   if (result.stats.variance < 0) {
     throw new Error('variance must be non-negative.');
+  }
+
+  if (result.stats.lyapunovVariance < 0) {
+    throw new Error('lyapunovVariance must be non-negative.');
+  }
+
+  if (result.stats.attractorRange < 0) {
+    throw new Error('attractorRange must be non-negative.');
+  }
+
+  if (
+    result.stats.attractorMin < 0 ||
+    result.stats.attractorMin > 1 ||
+    result.stats.attractorMax < 0 ||
+    result.stats.attractorMax > 1
+  ) {
+    throw new Error('attractorMin and attractorMax must be in [0,1].');
+  }
+
+  // fixedPoint and stabilityMargin can be null (for r <= 1)
+  if (
+    result.stats.fixedPoint !== null &&
+    !Number.isFinite(result.stats.fixedPoint)
+  ) {
+    throw new Error('fixedPoint must be finite when defined.');
+  }
+
+  if (
+    result.stats.stabilityMargin !== null &&
+    (!Number.isFinite(result.stats.stabilityMargin) ||
+      result.stats.stabilityMargin < 0)
+  ) {
+    throw new Error('stabilityMargin must be finite and non-negative when defined.');
+  }
+
+  // autocorrelation can be null (insufficient data) or in [-1, 1]
+  if (
+    result.stats.autocorrelation !== null &&
+    !Number.isFinite(result.stats.autocorrelation)
+  ) {
+    throw new Error('autocorrelation must be finite when defined.');
+  }
+
+  // detectedPeriod can be null (aperiodic) or a positive integer
+  if (
+    result.stats.detectedPeriod !== null &&
+    (!Number.isFinite(result.stats.detectedPeriod) ||
+      result.stats.detectedPeriod < 1 ||
+      !Number.isInteger(result.stats.detectedPeriod))
+  ) {
+    throw new Error('detectedPeriod must be a positive integer when defined.');
+  }
+
+  // entropy can be null (insufficient data) or non-negative
+  if (
+    result.stats.entropy !== null &&
+    (!Number.isFinite(result.stats.entropy) || result.stats.entropy < 0)
+  ) {
+    throw new Error('entropy must be finite and non-negative when defined.');
   }
 
   if (!Number.isFinite(result.elapsedMs) || result.elapsedMs < 0) {
