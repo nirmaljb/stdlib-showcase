@@ -44,5 +44,11 @@ All math runs through these:
 - `@stdlib/stats-base-mean` — strided mean
 - `@stdlib/stats-base-variance`
 - `@stdlib/math-base-special-ln` — natural log 
-- `@stdlib/math-base-special-abs` — absolute value 
-
+- `@stdlib/math-base-special-abs` — absolute value
+- `@stdlib/math-base-special-ceil` - ceil
+- `@stdlib/math-base-special-floor` - floor of number
+- `@stdlib/math-base-special-max` - max among multiple numbers
+- `@stdlib/math-base-special-min` - min among multiple numbers
+- `@stdlib/math-base-special-round` - Round a numeric value to the nearest integer.
+- `@stdlib/assert-is-finite` - check if a number if finite or not
+- `@stdlib/math-base-assert-is-integer` - check if a number is an integer or not
